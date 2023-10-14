@@ -21,7 +21,7 @@ connectDb();
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', [verifyToken, roleAdmin, adminRoutes]);
 app.use('/api/users', [verifyToken, roleUser, userRoutes]);
-app.use('/api/topics', [verifyToken, roleUser, topicRoutes]);
+app.use('/api/topics', topicRoutes);
 
 
 app.listen(PORT, () => console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`));

@@ -6,7 +6,7 @@ export const setCookieAndSendResponse = (res, refreshToken, user) => {
         expires: refreshToken.isExpiredAt,
         path: '/api/auth'
     });
-    res.send({
+    res.json({
         id: user._id,
         email: user.email,
         role: user.role,

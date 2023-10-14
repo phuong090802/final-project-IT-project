@@ -17,7 +17,7 @@ export const handleCreate = async (req, res) => {
 }
 
 export const handleUpdate = async (req, res) => {
-    const { name, description, begin, end } = req.body;
+
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(404).json({ error: 'Đề tài không tồn tại.' });
@@ -25,17 +25,26 @@ export const handleUpdate = async (req, res) => {
     try {
         const user = req.user;
         if (user) {
-            const topic = await Topic.findByIdAndUpdate(id, { name, description, begin, end });
-            if (topic) {
-                return res.status(204).send();
-            }
-            return res.status(404).json({ error: 'Đề tài không tồn tại.' });
+            const topic = await Topic.findById(id);
+            return updateTopicAndRespose(req, user, topic);
         }
         res.status(401).json({ error: 'Không đủ quyền truy cập.' });
 
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
+}
+
+const updateTopicAndRespose = async (req, user, topic) => {
+    if (topic) {
+        if (topic.instructor === user._id) {
+            const { name, description, begin, end } = req.body;
+            await Topic.findByIdAndUpdate(id, { name, description, begin, end });
+            return res.status(204).json({ message: 'Cập nhật đề tài thành công.' });
+        }
+        return res.set(403).json({ error: 'Thao tác không hợp lệ.' });
+    }
+    return res.status(404).json({ error: 'Đề tài không tồn tại.' });
 }
 
 export const handleDelete = async (req, res) => {
@@ -46,14 +55,78 @@ export const handleDelete = async (req, res) => {
     try {
         const user = req.user;
         if (user) {
-            const topic = await Topic.findByIdAndRemove(id);
+            const topic = await Topic.findById(id);
+            return deleteTopicAndResponse(user, topic);
+        }
+        res.status(401).json({ error: 'Không đủ quyền truy cập.' });
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
+const deleteTopicAndResponse = (user, topic) => {
+    if (topic) {
+        if (topic.instructor === user._id) {
+            return res.status(204).json({ message: 'Xóa đề tài thành công.' });
+        }
+        return res.set(403).json({ error: 'Thao tác không hợp lệ.' });
+    }
+    return res.status(404).json({ error: 'Đề tài không tồn tại.' });
+}
+
+export const handleGet = async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({ error: 'Đề tài không tồn tại.' });
+    }
+    try {
+        const user = req.user;
+        if (user) {
+            const topic = await Topic.findById(id);
             if (topic) {
-                return res.status(204).send();
+                return res.status(204).json(topic);
             }
             return res.status(404).json({ error: 'Đề tài không tồn tại.' });
         }
         res.status(401).json({ error: 'Không đủ quyền truy cập.' });
 
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
+export const handleGetAll = async (req, res) => {
+    const size = Number(req.query.size) || 5;
+    console.log(`size: ${size}`);
+    const page = Number(req.query.size) || 0;
+    console.log(`page: ${page}`);
+    console.log(`value : ${req.query.value}`);
+    const { sortBy, sortOrder } = req.query;
+    console.log(`sortBy: ${sortBy}`);
+    console.log(`sortOrder: ${sortOrder}`);
+    let sortCriteria = {};
+    if (sortBy) {
+        sortCriteria[sortBy] = sortOrder === 'desc' ? -1 : 1;
+    }
+    const query = req.query.value
+        ? {
+            $or: [
+                { name: { $regex: req.query.value, $options: 'i' } },
+                { description: { $regex: req.query.value, $options: 'i' } },
+            ],
+        }
+        : {};
+    try {
+        const count = await Topic.countDocuments({ ...query });
+        const topics = await Topic.find({ ...query })
+            .sort(sortCriteria)
+            .limit(size)
+            .skip(size * (page - 1));
+        if (topics.length === 0) {
+            return res.status(404).json({ error: 'Không tìm thấy.' });
+        }
+        res.json({ topics, page, pages: Math.ceil(count / size) });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

@@ -39,7 +39,7 @@ export const handleLogout = async (req, res) => {
     const refreshtTokenValue = req.cookies.refreshToken;
     const refreshToken = await RefreshToken.findOne({ token: refreshtTokenValue });
     if (refreshToken) {
-        const parentId = refreshToken.parent ?? refreshToken._id;
+        const parentId = refreshToken.parent || refreshToken._id;
         await RefreshToken.deleteMany({ parent: parentId });
         await RefreshToken.findByIdAndRemove(parentId);
     }
