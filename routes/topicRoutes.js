@@ -1,7 +1,7 @@
 import express from 'express';
 import { handleCreate, handleUpdate, handleDelete, handleGetAll, handleGet } from '../controllers/topicController.js';
-import { verifyCreateTopic, verifyUpdateTopic } from '../middlewares/verifyTopic.js';
-import { verifyToken, roleUser } from '../middlewares/authJwt.js';
+import { verifyCreateTopic, verifyUpdateTopic } from '../middlewares/topicMiddleware.js';
+import { verifyToken, roleUser } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 

@@ -2,11 +2,11 @@ import Topic from '../models/Topic.js';
 import mongoose from 'mongoose';
 
 export const handleCreate = async (req, res) => {
-    const { name, description, begin, end } = req.body;
+    const { name, description, numberOfStudent, begin, end } = req.body;
     try {
         const user = req.user;
         if (user) {
-            await Topic.create({ name: name, description: description, begin: begin, end: end, instructor: user._id });
+            await Topic.create({ name: name, description: description, numberOfStudent: numberOfStudent, begin: begin, end: end, instructor: user._id });
             return res.status(201).json({ success: 'Tạo tài đề tài thành công.' });
         }
         res.status(401).json({ error: 'Không đủ quyền truy cập.' });
@@ -38,8 +38,8 @@ export const handleUpdate = async (req, res) => {
 const updateTopicAndRespose = async (req, user, topic) => {
     if (topic) {
         if (topic.instructor === user._id) {
-            const { name, description, begin, end } = req.body;
-            await Topic.findByIdAndUpdate(id, { name, description, begin, end });
+            const { name, description, numberOfStudent, begin, end } = req.body;
+            await Topic.findByIdAndUpdate(id, { name, description, numberOfStudent, begin, end });
             return res.status(204).json({ message: 'Cập nhật đề tài thành công.' });
         }
         return res.set(403).json({ error: 'Thao tác không hợp lệ.' });
@@ -85,7 +85,7 @@ export const handleGet = async (req, res) => {
         if (user) {
             const topic = await Topic.findById(id);
             if (topic) {
-                return res.status(204).json(topic);
+                return res.status(200).json(topic);
             }
             return res.status(404).json({ error: 'Đề tài không tồn tại.' });
         }
@@ -98,13 +98,8 @@ export const handleGet = async (req, res) => {
 
 export const handleGetAll = async (req, res) => {
     const size = Number(req.query.size) || 5;
-    console.log(`size: ${size}`);
     const page = Number(req.query.size) || 0;
-    console.log(`page: ${page}`);
-    console.log(`value : ${req.query.value}`);
     const { sortBy, sortOrder } = req.query;
-    console.log(`sortBy: ${sortBy}`);
-    console.log(`sortOrder: ${sortOrder}`);
     let sortCriteria = {};
     if (sortBy) {
         sortCriteria[sortBy] = sortOrder === 'desc' ? -1 : 1;
@@ -123,9 +118,6 @@ export const handleGetAll = async (req, res) => {
             .sort(sortCriteria)
             .limit(size)
             .skip(size * (page - 1));
-        if (topics.length === 0) {
-            return res.status(404).json({ error: 'Không tìm thấy.' });
-        }
         res.json({ topics, page, pages: Math.ceil(count / size) });
     } catch (err) {
         res.status(500).json({ error: err.message });

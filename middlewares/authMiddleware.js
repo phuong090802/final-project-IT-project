@@ -23,8 +23,12 @@ export const verifyToken = (req, res, next) => {
 
     verifyTokenPromise.then(async (decoded) => {
         const user = await User.findById(decoded.id).select('-password');
-        req.user = user;
-        next();
+        if (user.status) {
+            req.user = user;
+            next();
+        } else {
+            return res.status(401).json({ error: 'Tài khoản đã bị khóa' });
+        }
     })
         .catch((err) => {
             return res.status(401).json({ error: err.message });
@@ -46,3 +50,4 @@ export const roleUser = (req, res, next) => {
         res.status(401).json({ error: 'Không đủ quyền truy cập.' });
     }
 };
+

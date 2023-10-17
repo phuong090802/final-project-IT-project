@@ -9,6 +9,11 @@ const topicSchema = new mongoose.Schema({
     description: {
         type: String
     },
+    numberOfStudent: {
+        type: Number,
+        required: true,
+        default: 0
+    },
     begin: {
         type: Date,
         required: true,

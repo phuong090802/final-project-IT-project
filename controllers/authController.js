@@ -1,24 +1,24 @@
 import bcrypt from 'bcrypt';
 import User from '../models/User.js';
 import RefreshToken from '../models/RefreshToken.js';
-import { generateRefreshToken, generateChildrenRefreshToken } from '../utils/jwtUtils.js';
+import { generateRefreshToken, generateChildrenRefreshToken } from '../utils/tokenUtils.js';
 import { setCookieAndSendResponse } from '../utils/cookieUtils.js';
 
 export const handleLogin = async (req, res) => {
-    const { email, password } = req.body;
-    if (!email || !password) {
-        return res.status(400).json({ error: 'Email và password không thể trống.' });
+    const { username, password } = req.body;
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Tên đăng nhập và mật khẩu không thể trống.' });
     }
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({ username: username });
     if (!user) {
-        return res.status(401).json({ error: 'Vui lòng kiểm lại email và password.' });
+        return res.status(401).json({ error: 'Vui lòng kiểm lại tên đăng nhập và mật khẩu.' });
     }
     const isMatch = bcrypt.compare(password, user.password);
     if (isMatch) {
         const refreshToken = await generateRefreshToken(user._id);
         return setCookieAndSendResponse(res, refreshToken, user);
     }
-    res.status(401).json({ error: 'Vui lòng kiểm lại email và password.' });
+    res.status(401).json({ error: 'Vui lòng kiểm lại tên đăng nhập và mật khẩu' });
 };
 
 export const handleRefreshToken = async (req, res) => {
@@ -26,7 +26,7 @@ export const handleRefreshToken = async (req, res) => {
     const refreshToken = await RefreshToken.findOne({ token: refreshtTokenValue });
     if (refreshToken) {
         const user = await User.findById(refreshToken.user);
-        await RefreshToken.updateOne({ _id: refreshToken._id }, { $set: { status: false } });
+        await RefreshToken.findByIdAndUpdate(refreshToken._id, { status: false });
         const parentId = refreshToken.parent ?? refreshToken._id;
         const nextRefreshToken = await generateChildrenRefreshToken(user._id, parentId);
         return setCookieAndSendResponse(res, nextRefreshToken, user);

@@ -1,4 +1,4 @@
-import { generateToken } from '../utils/jwtUtils.js';
+import { generateToken } from './tokenUtils.js';
 
 export const setCookieAndSendResponse = (res, refreshToken, user) => {
     res.cookie('refreshToken', refreshToken.token, {
