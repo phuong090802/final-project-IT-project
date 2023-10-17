@@ -9,27 +9,27 @@ export const handleCreateUser = async (req, res) => {
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         await User.create({ username: username, password: hashedPassword });
-        res.status(201).json({ success: 'Tạo tài khoản thành công.' });
+        res.status(201).json({ success: true, message: 'Tạo tài khoản thành công.' });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ success: false, message: err.message });
     }
 }
 
 export const handleDisableUser = async (req, res) => {
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(404).json({ error: 'Tài khoản không tồn tại.' });
+        return res.status(404).json({ success: false, message: 'Tài khoản không tồn tại.' });
     }
     try {
         const user = await User.findById(id);
         if (user) {
             User.findByIdAndUpdate(id, { status: false });
-            return res.json({ error: `Khóa tài khỏa ${user.username} thành công.` });
+            return res.json({ success: true, message: `Khóa tài khoản ${user.username} thành công.` });
         }
-        res.status(404).json({ error: 'Tài khoản không tồn tại.' });
+        res.status(404).json({ success: false, message: 'Tài khoản không tồn tại.' });
 
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ success: false, message: err.message });
     }
 }
 
@@ -56,18 +56,41 @@ export const handleGetAll = async (req, res) => {
             .sort(sortCriteria)
             .limit(size)
             .skip(size * (page - 1));
-        res.json({ users, page, pages: Math.ceil(count / size) });
+        res.json({ success: true, data: { users, page, pages: Math.ceil(count / size) } });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ success: false, message: err.message });
     }
 }
 
 export const handleCountUsers = async (req, res) => {
     const count = await User.countDocuments({ ...query });
-    res.json({ count: count });
+    res.json({ success: true, count: count });
 }
 
 export const handleCountTopics = async (req, res) => {
     const count = await Topic.countDocuments({ ...query });
-    res.json({ count: count });
+    res.json({ success: true, count: count });
+}
+
+export const handleChangePassword = async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({ success: false, message: 'Tài khoản không tồn tại.' });
+    }
+    try {
+        const { password } = req.body;
+        if (!password) {
+            return res.status(400).json({ success: false, message: 'Mật khẩu không thể trống.' });
+        }
+        const user = await User.findById(id);
+        if (user) {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            await User.findByIdAndUpdate(user._id, { password: hashedPassword });
+            res.json({ success: true, message: 'Đặt lại mật khẩu thành công.' })
+        }
+        res.status(404).json({ success: false, message: 'Tài khoản không tồn tại.' });
+
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
 }

@@ -14,7 +14,7 @@ const upload = multer({ memoryStorage });
 
 router.post('/', upload.single('image'), async (req, res) => {
     if (!req.file) {
-        return res.status(400).json({ error: 'Không tìm thấy file.' });
+        return res.status(400).json({ success: false, message: 'Không tìm thấy file.' });
     }
     const filetypes = /jpg|jpeg|png/;
     const extension = path.extname(req.file.originalname);
@@ -27,12 +27,12 @@ router.post('/', upload.single('image'), async (req, res) => {
             const storageRef = ref(storage, dataRef);
             await uploadBytes(storageRef, new Uint8Array(req.file.buffer));
             const url = await getDownloadURL(storageRef);
-            return res.status(200).json({ ref: dataRef, url: url });
+            return res.status(200).json({ success: true, data: { ref: dataRef, url: url } });
         } catch (err) {
-            return res.status(500).json({ error: err.message });
+            return res.status(500).json({ success: false, message: err.message });
         }
     }
-    return res.status(400).json({ error: 'Định dạng không hợp lệ' });
+    return res.status(400).json({ success: false, message: 'Định dạng không hợp lệ' });
 
 });
 

@@ -7,9 +7,12 @@ export const setCookieAndSendResponse = (res, refreshToken, user) => {
         path: '/api/auth'
     });
     res.json({
-        id: user._id,
-        email: user.email,
-        role: user.role,
-        token: generateToken(user._id)
+        success: true,
+        data: {
+            id: user._id,
+            username: user.username,
+            role: user.role,
+            token: generateToken(user._id)
+        }
     });
 };
