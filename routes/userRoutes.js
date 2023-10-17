@@ -5,7 +5,7 @@ import { verifyToken, roleUser } from '../middlewares/authMiddleware.js';
 const router = express.Router();
 
 //#region test
-router.get('/test', verifyToken, (req, res) => res.json({ message: 'Xác thực thành công.' }));
+router.route('/test', verifyToken, (req, res) => res.json({ message: 'Xác thực thành công.' }));
 //#endregion
 
 router.get('/exists', verifyToken, roleUser, handleUserDetailsExists);
