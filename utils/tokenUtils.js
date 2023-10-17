@@ -19,7 +19,7 @@ export const generateRefreshToken = async (id) => {
 export const generateChildrenRefreshToken = async (id, parentId) => {
     const token = nanoid(10);
     const tokenObj = { _: token, p: parentId };
-    const refreshToken = Buffer.from(JSON.stringify(tokenObj)).toString('base64url');
+    const refreshToken = btoa(JSON.stringify(tokenObj));
     const currentDate = new Date();
     const isExpiredAt = new Date(currentDate);
     isExpiredAt.setDate(currentDate.getDate() + 7);

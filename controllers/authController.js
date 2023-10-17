@@ -36,7 +36,7 @@ export const handleRefreshToken = async (req, res) => {
         return clearCookie(res, false, 'Không đủ quyền truy cập.');
     }
     try {
-        const token = Buffer.from(refreshtTokenValue, 'base64url').toString();
+        const token = atob(refreshtTokenValue);
         tokenObj = JSON.parse(token);
         const parentToken = await RefreshToken.findById(tokenObj.p);
         const parentId = parentToken.parent || parentToken._id;
