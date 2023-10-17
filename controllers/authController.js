@@ -1,8 +1,8 @@
 import bcrypt from 'bcrypt';
 import User from '../models/User.js';
 import RefreshToken from '../models/RefreshToken.js';
-import { generateRefreshToken, generateChildrenRefreshToken } from '../utils/tokenUtils.js';
-import { setCookieAndSendResponse } from '../utils/cookieUtils.js';
+import { generateRefreshToken, generateChildrenRefreshToken, deleteBranchToken } from '../utils/tokenUtils.js';
+import { setCookieAndSendResponse, clearCookie } from '../utils/cookieUtils.js';
 
 export const handleLogin = async (req, res) => {
     const { username, password } = req.body;
@@ -25,14 +25,26 @@ export const handleRefreshToken = async (req, res) => {
     const refreshtTokenValue = req.cookies.refreshToken;
     const refreshToken = await RefreshToken.findOne({ token: refreshtTokenValue });
     if (refreshToken) {
-        const user = await User.findById(refreshToken.user);
-        await RefreshToken.findByIdAndUpdate(refreshToken._id, { status: false });
         const parentId = refreshToken.parent ?? refreshToken._id;
-        const nextRefreshToken = await generateChildrenRefreshToken(user._id, parentId);
-        return setCookieAndSendResponse(res, nextRefreshToken, user);
+        if (refreshToken.status) {
+            const user = await User.findById(refreshToken.user);
+            await RefreshToken.findByIdAndUpdate(refreshToken._id, { status: false });
+            const nextRefreshToken = await generateChildrenRefreshToken(user._id, parentId);
+            return setCookieAndSendResponse(res, nextRefreshToken, user);
+        }
+        await deleteBranchToken(parentId);
+        return clearCookie(res, false, 'Không đủ quyền truy cập.');
     }
-    res.clearCookie('refreshToken', { path: '/api/auth' });
-    res.status(401).json({ success: false, message: 'Không đủ quyền truy cập.' });
+    try {
+        const token = Buffer.from(refreshtTokenValue, 'base64url').toString();
+        tokenObj = JSON.parse(token);
+        const parentToken = await RefreshToken.findById(tokenObj.p);
+        const parentId = parentToken.parent || parentToken._id;
+        await deleteBranchToken(parentId);
+    } catch {
+        return clearCookie(res, false, 'Không đủ quyền truy cập.');
+    }
+    clearCookie(res, false, 'Không đủ quyền truy cập.');
 };
 
 export const handleLogout = async (req, res) => {
@@ -40,10 +52,8 @@ export const handleLogout = async (req, res) => {
     const refreshToken = await RefreshToken.findOne({ token: refreshtTokenValue });
     if (refreshToken) {
         const parentId = refreshToken.parent || refreshToken._id;
-        await RefreshToken.deleteMany({ parent: parentId });
-        await RefreshToken.findByIdAndRemove(parentId);
+        await deleteBranchToken(parentId);
     }
-    res.clearCookie('refreshToken', { path: '/api/auth' });
-    res.json({ success: true, message: 'Đăng xuất thành công.' });
+    clearCookie(res, true, 'Đăng xuất thành công.');
 }
 

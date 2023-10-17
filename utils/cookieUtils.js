@@ -16,3 +16,8 @@ export const setCookieAndSendResponse = (res, refreshToken, user) => {
         }
     });
 };
+
+export const clearCookie = (res, success, message) => {
+    res.clearCookie('refreshToken', { path: '/api/auth' });
+    res.status(401).json({ success: success, message: message });
+}
