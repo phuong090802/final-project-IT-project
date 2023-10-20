@@ -1,34 +1,31 @@
 import jwt from 'jsonwebtoken';
 import RefreshToken from '../models/RefreshToken.js';
 import { nanoid } from 'nanoid';
+import { EXPIRES_IN, ENCODING } from '../constants/tokenConstant.js';
 
 export const generateToken = (id) => {
     return jwt.sign({ id }, process.env.SECRET_KEY, {
-        expiresIn: '5m',
+        expiresIn: EXPIRES_IN
     });
 };
 
-export const generateRefreshToken = async (id) => {
-    const token = nanoid();
-    const currentDate = new Date();
-    const isExpiredAt = new Date(currentDate);
-    isExpiredAt.setDate(currentDate.getDate() + 7);
-    return await RefreshToken.create({ token: token, isUsedAt: currentDate, isExpiredAt: isExpiredAt, user: id });
+export const generateRefreshToken = async (account) => {
+    const expires = new Date();
+    expires.setDate(expires.getDate() + 7);
+    return await RefreshToken.create({ token: nanoid(), expires, account });
 };
 
-export const generateChildrenRefreshToken = async (id, parentId) => {
-    const token = nanoid(10);
-    const tokenObj = { _: token, p: parentId };
-    const refreshToken = Buffer.from(JSON.stringify(tokenObj)).toString('base64url');
-    const currentDate = new Date();
-    const isExpiredAt = new Date(currentDate);
-    isExpiredAt.setDate(currentDate.getDate() + 7);
-    await RefreshToken.deleteMany({ parent: parentId });
-    return await RefreshToken.create({ token: refreshToken, isUsedAt: currentDate, isExpiredAt: isExpiredAt, user: id, parent: parentId });
+export const generateChildrenRefreshToken = async (account, parent) => {
+    const tokenObj = { _: nanoid(10), p: parent };
+    const token = Buffer.from(JSON.stringify(tokenObj)).toString(ENCODING);
+    const expires = new Date();
+    expires.setDate(expires.getDate() + 7);
+    await RefreshToken.deleteMany({ parent });
+    return await RefreshToken.create({ token, expires, account, parent });
 };
 
-export const deleteBranchToken = async (parentId) => {
-    await RefreshToken.deleteMany({ parent: parentId });
-    await RefreshToken.findByIdAndRemove(parentId);
+export const deleteABranch = async (parent) => {
+    await RefreshToken.deleteMany({ parent });
+    await RefreshToken.findByIdAndRemove(parent);
 }
 

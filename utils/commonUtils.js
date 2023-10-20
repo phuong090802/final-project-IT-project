@@ -1,3 +1,5 @@
+import mongoose from 'mongoose';
+
 export const isNullOrWhitespace = (input) =>
     !input || !input.trim().length;
 
@@ -6,3 +8,5 @@ export const phoneValidate = (phone) =>
 
 export const emailValidate = (email) =>
     /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+
+export const idValidate = (id) => mongoose.Types.ObjectId.isValid(id);

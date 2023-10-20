@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { TOPIC, USER } from '../constants/dbConstant.js';
 
 const topicSchema = new mongoose.Schema({
     name: {
@@ -9,7 +10,7 @@ const topicSchema = new mongoose.Schema({
     description: {
         type: String
     },
-    numberOfStudent: {
+    quantity: {
         type: Number,
         required: true,
         default: 0
@@ -26,9 +27,9 @@ const topicSchema = new mongoose.Schema({
     instructor: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'User'
+        ref: USER
     }
 }, { timestamps: true });
 
-const Topic = mongoose.model('Topic', topicSchema);
+const Topic = mongoose.model(TOPIC, topicSchema);
 export default Topic;

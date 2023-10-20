@@ -1,21 +1,25 @@
-import { validatorCreateTopic, validatorUpdateTopic } from '../utils/topicUtils.js'
+import { validationCreate, validationUpdate } from '../utils/topicUtils.js'
+import { idValidate } from '../utils/commonUtils.js';
 
 
-export const verifyCreateTopic = async (req, res, next) => {
-    const { name, begin, end } = req.body;
-    const messageValidate = await validatorCreateTopic(name, begin, end);
-    if (messageValidate) {
-        return res.status(messageValidate.status).json({ success: false, message: messageValidate.message });
+export const handleValidationCreate = async (req, res, next) => {
+    const { name, quantity, begin, end } = req.body;
+    const error = await validationCreate(req.user._id, name, quantity, begin, end);
+    if (error) {
+        return res.status(error.status).json({ success: false, message: error.message });
     }
     next();
 }
 
-export const verifyUpdateTopic = async (req, res, next) => {
+export const handleValidateUpdate = async (req, res, next) => {
     const { id } = req.params;
-    const { name, begin, end } = req.body;
-    const messageValidate = await validatorUpdateTopic(id, name, begin, end);
-    if (messageValidate) {
-        return res.status(messageValidate.status).json({ success: false, message: messageValidate.message });
+    if (!idValidate(id)) {
+        return res.status(404).json({ success: false, message: 'Đề tài không tồn tại.' });
+    }
+    const { name, quantity, begin, end } = req.body;
+    const error = await validationUpdate(id, name, quantity, begin, end);
+    if (error) {
+        return res.status(error.status).json({ success: false, message: error.message });
     }
     next();
 }

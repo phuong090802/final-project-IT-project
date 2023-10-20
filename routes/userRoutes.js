@@ -1,9 +1,10 @@
 import express from 'express';
 import {
-    handleCreateUserDetails, handleGet, handleGetAll,
-    handleUserDetailsExists, handleChangePassword
+    handleCreate, handleUpdate, handleGet, handleGetAll,
+    handleUserExists, handleChangePassword
 } from '../controllers/userController.js';
-import { verifyToken, roleUser } from '../middlewares/authMiddleware.js';
+import { verifyToken, isUser } from '../middlewares/authMiddleware.js';
+import { handleValidationCreate, handleValidationUpdate } from '../middlewares/userMiddleware.js';
 
 const router = express.Router();
 
@@ -11,9 +12,12 @@ const router = express.Router();
 router.all('/test', verifyToken, (req, res) => res.json({ success: true, message: 'Xác thực thành công.' }));
 //#endregion
 
-router.put('/password', verifyToken, roleUser, handleChangePassword);
-router.get('/exists', verifyToken, roleUser, handleUserDetailsExists);
+router.put('/password', verifyToken, isUser, handleChangePassword);
+router.get('/exists', verifyToken, isUser, handleUserExists);
 router.route('/:id').get(handleGet);
-router.route('/').post(verifyToken, roleUser, handleCreateUserDetails).get(handleGetAll);
+router.route('/')
+    .post(verifyToken, isUser, handleValidationCreate, handleCreate)
+    .put(verifyToken, isUser, handleValidationUpdate, handleUpdate)
+    .get(handleGetAll);
 
 export default router;

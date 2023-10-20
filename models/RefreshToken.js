@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { ACCOUNT, REFRESH_TOKEN, REFRESH_TOKEN_COLLECTION } from '../constants/dbConstant.js';
 
 const refreshTokenSchema = new mongoose.Schema({
     token: {
@@ -11,24 +12,20 @@ const refreshTokenSchema = new mongoose.Schema({
         required: true,
         default: true
     },
-    isUsedAt: {
-        type: Date,
-        required: true,
-    },
-    isExpiredAt: {
+    expires: {
         type: Date,
         required: true,
     },
     parent: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'RefreshToken'
+        ref: REFRESH_TOKEN
     },
-    user: {
+    account: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'User'
+        ref: ACCOUNT
     }
-}, { collection: 'refresh-tokens', timestamps: true });
+}, { collection: REFRESH_TOKEN_COLLECTION, timestamps: true });
 
-const RefreshToken = mongoose.model('RefreshToken', refreshTokenSchema);
+const RefreshToken = mongoose.model(REFRESH_TOKEN, refreshTokenSchema);
 export default RefreshToken;

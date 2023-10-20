@@ -1,96 +1,84 @@
 import Topic from '../models/Topic.js';
-import mongoose from 'mongoose';
+import User from '../models/User.js';
+import { idValidate } from '../utils/commonUtils.js';
 
 export const handleCreate = async (req, res) => {
-    const { name, description, numberOfStudent, begin, end } = req.body;
+    const { name, description, quantity, begin, end } = req.body;
     try {
-        const user = req.user;
-        if (user) {
-            await Topic.create({ name: name, description: description, numberOfStudent: numberOfStudent, begin: begin, end: end, instructor: user._id });
-            return res.status(201).json({ success: true, message: 'Tạo tài đề tài thành công.' });
-        }
-        res.status(401).json({ success: false, message: 'Không đủ quyền truy cập.' });
-
+        const account = req.user;
+        const user = await User.findOne({ account: account._id });
+        await Topic.create({ name, description, quantity, begin, end, instructor: user.id });
+        res.status(201).json({ success: true, message: 'Tạo tài đề tài thành công.' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 }
 
 export const handleUpdate = async (req, res) => {
-
     const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(404).json({ success: false, message: 'Đề tài không tồn tại.' });
-    }
     try {
-        const user = req.user;
-        if (user) {
-            const topic = await Topic.findById(id);
-            return updateTopicAndRespose(req, user, topic);
+        const topic = await Topic.findById(id);
+        if (!topic) {
+            return res.status(404).json({ success: false, message: 'Đề tài không tồn tại.' });
         }
-        res.status(401).json({ success: false, message: 'Không đủ quyền truy cập.' });
 
+        const account = req.user;
+
+        const user = await User.findOne({ account: account._id });
+        if (!topic.instructor.equals(user._id)) {
+            return res.status(403).json({ success: false, message: 'Thao tác không hợp lệ.' });
+        }
+        const { name, description, quantity, begin, end } = req.body;
+        await Topic.findByIdAndUpdate(id, { name, description, quantity, begin, end });
+        res.status(200).json({ success: true, message: 'Cập nhật đề tài thành công.' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 }
 
-const updateTopicAndRespose = async (req, user, topic) => {
-    if (topic) {
-        if (topic.instructor === user._id) {
-            const { name, description, numberOfStudent, begin, end } = req.body;
-            await Topic.findByIdAndUpdate(id, { name, description, numberOfStudent, begin, end });
-            return res.status(204).json({ success: true, message: 'Cập nhật đề tài thành công.' });
-        }
-        return res.set(403).json({ success: false, message: 'Thao tác không hợp lệ.' });
-    }
-    return res.status(404).json({ success: false, message: 'Đề tài không tồn tại.' });
-}
 
 export const handleDelete = async (req, res) => {
     const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!idValidate(id)) {
         return res.status(404).json({ success: false, message: 'Đề tài không tồn tại.' });
     }
+
     try {
-        const user = req.user;
-        if (user) {
-            const topic = await Topic.findById(id);
-            return deleteTopicAndResponse(user, topic);
+        const account = req.user;
+        const user = await User.findOne({ account: account._id });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'Vui lòng cập nhật thông tin cá nhân trước khi tạo đề tài.' });
         }
-        res.status(401).json({ success: false, message: 'Không đủ quyền truy cập.' });
+        const topic = await Topic.findById(id);
+        deleteTopicAndResponse(user._id, topic, res);
 
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 }
 
-const deleteTopicAndResponse = (user, topic) => {
-    if (topic) {
-        if (topic.instructor === user._id) {
-            return res.status(204).json({ success: true, message: 'Xóa đề tài thành công.' });
-        }
+const deleteTopicAndResponse = (userId, topic, res) => {
+    if (!topic) {
+        return res.status(404).json({ success: false, message: 'Đề tài không tồn tại.' });
+    }
+
+    if (!topic.instructor.equals(userId)) {
         return res.set(403).json({ success: false, message: 'Thao tác không hợp lệ.' });
     }
-    return res.status(404).json({ success: false, message: 'Đề tài không tồn tại.' });
+    res.status(200).json({ success: true, message: 'Xóa đề tài thành công.' });
 }
 
 export const handleGet = async (req, res) => {
     const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!idValidate(id)) {
         return res.status(404).json({ success: false, message: 'Đề tài không tồn tại.' });
     }
     try {
-        const user = req.user;
-        if (user) {
-            const topic = await Topic.findById(id);
-            if (topic) {
-                return res.status(200).json({ success: true, data: topic });
-            }
+        const topic = await Topic.findById(id);
+        if (!topic) {
             return res.status(404).json({ success: false, message: 'Đề tài không tồn tại.' });
         }
-        res.status(401).json({ success: false, message: 'Không đủ quyền truy cập.' });
-
+        res.status(200).json({ success: true, data: topic });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -98,18 +86,28 @@ export const handleGet = async (req, res) => {
 
 export const handleGetAll = async (req, res) => {
     const size = Number(req.query.size) || 5;
-    const page = Number(req.query.size) || 0;
+    const page = Number(req.query.page) || 1;
     const { sortBy, sortOrder } = req.query;
-    let sortCriteria = {};
+    const sortCriteria = {};
     if (sortBy) {
         sortCriteria[sortBy] = sortOrder === 'desc' ? -1 : 1;
     }
     const query = req.query.value
         ? {
             $or: [
-                { name: { $regex: req.query.value, $options: 'i' } },
-                { description: { $regex: req.query.value, $options: 'i' } },
-            ],
+                {
+                    name: {
+                        $regex: req.query.value,
+                        $options: 'i',
+                    }
+                },
+                {
+                    description: {
+                        $regex: req.query.value,
+                        $options: 'i'
+                    }
+                }
+            ]
         }
         : {};
     try {

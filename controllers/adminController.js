@@ -1,33 +1,35 @@
-import User from '../models/User.js';
+import Account from '../models/Account.js';
 import Topic from '../models/Topic.js';
 import bcrypt from 'bcrypt';
+import { idValidate } from '../utils/commonUtils.js';
+import RefreshToken from '../models/RefreshToken.js';
 
 
-export const handleCreateUser = async (req, res) => {
-
+export const handleCreate = async (req, res) => {
     const { username, password } = req.body;
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
-        await User.create({ username: username, password: hashedPassword });
+        await Account.create({ username: username.toLowerCase(), password: hashedPassword });
         res.status(201).json({ success: true, message: 'Tạo tài khoản thành công.' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 }
 
-export const handleDisableUser = async (req, res) => {
+export const handleDisable = async (req, res) => {
     const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!idValidate(id)) {
         return res.status(404).json({ success: false, message: 'Tài khoản không tồn tại.' });
     }
-    try {
-        const user = await User.findById(id);
-        if (user) {
-            User.findByIdAndUpdate(id, { status: false });
-            return res.json({ success: true, message: `Khóa tài khoản ${user.username} thành công.` });
-        }
-        res.status(404).json({ success: false, message: 'Tài khoản không tồn tại.' });
 
+    try {
+        const account = await Account.findById(id);
+        if (!account) {
+            return res.status(404).json({ success: false, message: 'Tài khoản không tồn tại.' });
+        }
+        await Account.findByIdAndUpdate(id, { status: false });
+        await RefreshToken.deleteMany({ account: account._id });
+        res.json({ success: true, message: `Khóa tài khoản ${account.username} thành công.` });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -36,23 +38,44 @@ export const handleDisableUser = async (req, res) => {
 
 export const handleGetAll = async (req, res) => {
     const size = Number(req.query.size) || 5;
-    const page = Number(req.query.size) || 0;
+    const page = Number(req.query.page) || 1;
     const { sortBy, sortOrder } = req.query;
-    let sortCriteria = {};
+    const sortCriteria = {};
     if (sortBy) {
         sortCriteria[sortBy] = sortOrder === 'desc' ? -1 : 1;
     }
-    const query = req.query.value
-        ? {
-            $or: [
-                { username: { $regex: req.query.value, $options: 'i' } },
-                { status: { $regex: req.query.value, $options: 'i' } },
-            ],
-        }
-        : {};
+    const account = req.user;
+    const query = !req.query.value ? { _id: { $ne: account._id } }
+        : {
+            $and: [
+                {
+                    $or: [
+                        {
+                            username: {
+                                $regex: req.query.value,
+                                $options: 'i'
+                            }
+                        },
+                        {
+                            role: {
+                                $regex: req.query.value,
+                                $options: 'i'
+                            }
+                        },
+                        (req.query.value === 'true' || req.query.value === 'false') ? { status: req.query.value } : {}
+                    ]
+                },
+                { _id: { $ne: account._id } }
+            ]
+        };
+
     try {
-        const count = await User.countDocuments({ ...query });
-        const users = await User.find({ ...query })
+        const count = await Account.countDocuments({ ...query })
+            .where('_id')
+            .ne(account._id);
+
+        const users = await Account.find({ ...query })
+            .select('-password -__v -updatedAt -createdAt')
             .sort(sortCriteria)
             .limit(size)
             .skip(size * (page - 1));
@@ -62,34 +85,40 @@ export const handleGetAll = async (req, res) => {
     }
 }
 
-export const handleCountUsers = async (req, res) => {
-    const count = await User.countDocuments({ ...query });
-    res.json({ success: true, count: count });
+export const handleCountAccounts = async (req, res) => {
+    const account = req.user;
+    const count = await Account.countDocuments()
+        .where('_id')
+        .ne(account._id);
+    res.json({ success: true, count });
 }
 
 export const handleCountTopics = async (req, res) => {
-    const count = await Topic.countDocuments({ ...query });
-    res.json({ success: true, count: count });
+    const count = await Topic.countDocuments();
+    res.json({ success: true, count });
 }
 
 export const handleChangePassword = async (req, res) => {
     const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!idValidate(id)) {
         return res.status(404).json({ success: false, message: 'Tài khoản không tồn tại.' });
     }
+
     try {
         const { password } = req.body;
         if (!password) {
             return res.status(400).json({ success: false, message: 'Mật khẩu không thể trống.' });
         }
-        const user = await User.findById(id);
-        if (user) {
-            const hashedPassword = await bcrypt.hash(password, 10);
-            await User.findByIdAndUpdate(user._id, { password: hashedPassword });
-            res.json({ success: true, message: 'Đặt lại mật khẩu thành công.' })
-        }
-        res.status(404).json({ success: false, message: 'Tài khoản không tồn tại.' });
 
+        const account = await Account.findById(id);
+        if (!account) {
+            return res.status(404).json({ success: false, message: 'Tài khoản không tồn tại.' });
+
+        }
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await Account.findByIdAndUpdate(account._id, { password: hashedPassword });
+        await RefreshToken.deleteMany({ account: account._id });
+        res.json({ success: true, message: 'Đặt lại mật khẩu thành công.' })
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }

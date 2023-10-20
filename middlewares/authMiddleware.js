@@ -1,52 +1,38 @@
 import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
-import { USER, ADMIN } from '../constants/roleConstant.js';
+import Account from '../models/Account.js';
+import { ROLE_USER, ROLE_ADMIN } from '../constants/dbConstant.js';
 
-export const verifyToken = (req, res, next) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
+export const verifyToken = async (req, res, next) => {
+    if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer')) {
         return res.status(401).json({ success: false, message: 'Không đủ quyền truy cập.' });
     }
-    const token = authHeader.split(' ')[1];
-    if (!token) {
-        return res.status(401).json({ success: false, message: 'Không đủ quyền truy cập.' });
-    }
-
-    const verifyTokenPromise = new Promise((resolve, reject) => {
-        jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
-            if (err) {
-                return reject(err);
-            }
-            resolve(decoded);
-        });
-    });
-
-    verifyTokenPromise.then(async (decoded) => {
-        const user = await User.findById(decoded.id).select('-password');
-        if (user.status) {
-            req.user = user;
-            next();
-        } else {
+    try {
+        const token = req.headers.authorization.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({ success: false, message: 'Không đủ quyền truy cập.' });
+        }
+        const decoded = jwt.verify(token, process.env.SECRET_KEY);
+        const account = await Account.findById(decoded.id).select('-password');
+        if (!account.status) {
             return res.status(401).json({ success: false, message: 'Tài khoản đã bị khóa' });
         }
-    })
-        .catch((err) => {
-            return res.status(401).json({ success: false, message: err.message });
-        });
+        req.user = account;
+        next();
+    } catch (err) {
+        res.status(401).json({ success: false, message: err.message });
+    }
 }
 
-export const roleAdmin = (req, res, next) => {
-    if (req.user && req.user.role === ADMIN) {
-        next();
-    } else {
-        res.status(401).json({ success: false, message: 'Không đủ quyền truy cập.' });
+export const isAdmin = (req, res, next) => {
+    if (!req.user || req.user.role !== ROLE_ADMIN) {
+        return res.status(401).json({ success: false, message: 'Không đủ quyền truy cập.' });
     }
+    next();
 };
 
-export const roleUser = (req, res, next) => {
-    if (req.user && req.user.role === USER) {
-        next();
-    } else {
-        res.status(401).json({ success: false, message: 'Không đủ quyền truy cập.' });
+export const isUser = (req, res, next) => {
+    if (!req.user || req.user.role !== ROLE_USER) {
+        return res.status(401).json({ success: false, message: 'Không đủ quyền truy cập.' });
     }
+    next();
 };

@@ -1,30 +1,40 @@
 import mongoose from 'mongoose';
-import { USER, ADMIN } from '../constants/roleConstant.js';
+import { USER, ACCOUNT } from '../constants/dbConstant.js';
 
 const userSchema = new mongoose.Schema({
-    username: {
+    name: {
+        type: String,
+        required: true
+    },
+    phone: {
         type: String,
         required: true,
         unique: true
     },
-    password: {
+    email: {
         type: String,
-        required: true
-    },
-    role: {
-        type: String,
-        enum: [USER, ADMIN],
-        default: USER,
-        required: true
-    },
-    status: {
-        type: Boolean,
         required: true,
-        default: true
+        unique: true
+    },
+    image: {
+        ref: {
+            type: String
+        },
+        url: {
+            type: String
+        }
+    },
+    description: {
+        type: String
+    },
+    account: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: ACCOUNT
     }
 
 }, { timestamps: true }
 );
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model(USER, userSchema);
 export default User;

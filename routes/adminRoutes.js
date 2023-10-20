@@ -1,17 +1,19 @@
 import express from 'express';
 import {
-    handleCreateUser, handleDisableUser,
-    handleGetAll, handleCountUsers, handleCountTopics, handleChangePassword
+    handleCreate, handleDisable,
+    handleGetAll, handleCountAccounts, handleCountTopics, handleChangePassword
 } from '../controllers/adminController.js';
-import { verifyCreateUser } from '../middlewares/userMiddleware.js';
+import { handleValidationCreate } from '../middlewares/accountMiddleware.js';
 
 
 const router = express.Router();
 
-router.get('/users/count', handleCountUsers);
-router.put('/users/disable/:id', handleDisableUser);
-router.put('/users/password/:id', handleChangePassword);
+router.get('/accounts/count', handleCountAccounts);
+router.put('/accounts/disable/:id', handleDisable);
+router.put('/accounts/password/:id', handleChangePassword);
 router.get('/topics/count', handleCountTopics);
-router.route('/users').post(verifyCreateUser, handleCreateUser).get(handleGetAll);
+router.route('/accounts')
+    .post(handleValidationCreate, handleCreate)
+    .get(handleGetAll);
 
 export default router;
