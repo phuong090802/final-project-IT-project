@@ -8,10 +8,6 @@ import { handleValidationCreate, handleValidationUpdate } from '../middlewares/u
 
 const router = express.Router();
 
-//#region test
-router.all('/test', verifyToken, (req, res) => res.json({ success: true, message: 'Xác thực thành công.' }));
-//#endregion
-
 router.put('/password', verifyToken, isUser, handleChangePassword);
 router.get('/exists', verifyToken, isUser, handleUserExists);
 router.route('/:id').get(handleGet);
