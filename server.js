@@ -29,7 +29,7 @@ app.use(cookieParser());
 
 connectDb();
 
-router.all('/test', verifyToken, (req, res) => res.json({ success: true, message: 'Xác thực thành công.' }));
+app.all('/test', verifyToken, (req, res) => res.json({ success: true, message: 'Xác thực thành công.' }));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', verifyToken, isAdmin, adminRoutes);

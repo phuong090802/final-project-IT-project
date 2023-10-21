@@ -3,9 +3,8 @@ import { handleLogin, handleRefreshToken, handleLogout  } from '../controllers/a
 
 const router = express.Router();
 
-
 router.post('/login', handleLogin);
 router.post('/refresh-token', handleRefreshToken);
-router.get('/logout', handleLogout)
+router.get('/logout', handleLogout);
 
 export default router;
