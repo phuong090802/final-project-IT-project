@@ -3,6 +3,7 @@ import { handleLogin, handleRefreshToken, handleLogout  } from '../controllers/a
 
 const router = express.Router();
 
+router.all('/test', verifyToken, (req, res) => res.json({ success: true, message: 'Xác thực thành công.' }));
 router.post('/login', handleLogin);
 router.post('/refresh-token', handleRefreshToken);
 router.get('/logout', handleLogout);
