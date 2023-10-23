@@ -20,6 +20,7 @@ const app = express();
 
 const corsOptions = {
     origin: 'http://localhost:3000',
+    headers: ['Authorization', 'Content-Type'],
     credentials: true,
   };
 
