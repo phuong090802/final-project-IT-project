@@ -7,10 +7,18 @@ import {
     isAuthenticatedUser,
     authorizeRoles,
 } from './middlewares/auth.js';
+import cors from 'cors';
 
-
+const corsOptions = {
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  };
+  
 const app = express();
 
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
