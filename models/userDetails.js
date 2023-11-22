@@ -9,7 +9,7 @@ const userDetailsSchema = new mongoose.Schema({
     },
     phone: {
         type: String,
-        required: true,
+        required: [true, 'Vui lòng nhập số điện thoại'],
         unique: true,
         validate: {
             validator: function (value) {
@@ -38,8 +38,9 @@ const userDetailsSchema = new mongoose.Schema({
             type: String
         }
     },
-    description: {
-        type: String
+    degree: {
+        type: String,
+        required: [true, 'Vui lòng nhập học vị'],
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
