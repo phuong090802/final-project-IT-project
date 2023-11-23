@@ -71,6 +71,23 @@ export const handleDeleteUser = catchAsyncErrors(async (req, res, next) => {
     });
 });
 
+export const handleUpdatePasswordUser = catchAsyncErrors(async (req, res, next) => {
+    const user = await User.findById(req.user.id).select('+password');
+
+    if (!user) {
+        return next(new ErrorHandler('Không tìm thấy người dùng', 404));
+    }
+
+    user.password = req.body.password;
+
+    await user.save();
+
+    res.json({
+        success: true,
+        message: 'Cập nhật mật khẩu người dùng thành công'
+    });
+});
+
 
 function formatVietnameseDate(date) {
     const parsedDate = parseISO(date);
