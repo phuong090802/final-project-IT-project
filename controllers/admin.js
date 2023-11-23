@@ -81,6 +81,7 @@ export const handleUpdatePasswordUser = catchAsyncErrors(async (req, res, next) 
     user.password = req.body.password;
 
     await user.save();
+    await RefreshToken.deleteMany({ user });
 
     res.json({
         success: true,
