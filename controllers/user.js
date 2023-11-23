@@ -24,3 +24,4 @@ export const handleUpdatePassword = catchAsyncErrors(async (req, res, next) => {
         message: 'Cập nhật mật khẩu thành công'
     });
 });
+

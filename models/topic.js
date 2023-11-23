@@ -16,10 +16,22 @@ const topicSchema = new mongoose.Schema({
     beginAt: {
         type: Date,
         required: [true, 'Ngày bắt đầu không thể bỏ trống'],
+        validate: {
+            validator: function (value) {
+                return this.endAt > value;
+            },
+            message: 'Ngày kết thúc phải trước ngày kết thúc'
+        }
     },
     endAt: {
         type: Date,
         required: [true, 'Ngày kết thúc không thể bỏ trống'],
+        validate: {
+            validator: function (value) {
+                return this.beginAt < value;
+            },
+            message: 'Ngày kết thúc phải sau ngày bắt đầu'
+        }
     },
     instructor: {
         type: mongoose.Schema.Types.ObjectId,
