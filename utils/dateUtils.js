@@ -1,16 +1,13 @@
 import { format, parseISO } from 'date-fns';
-import vi from 'date-fns/locale/vi/index.js';
 
 export default function formatVietnameseDate(date) {
     const parsedDate = parseISO(date);
 
-    const dayOfWeek = format(parsedDate, 'EEEE');
-
     const time = format(parsedDate, 'HH:mm');
 
-    const formattedDate = format(parsedDate, "'Ngày' dd-MM-yyyy");
+    const formattedDate = format(parsedDate, "'ngày' dd-MM-yyyy");
 
-    const finalFormattedDate = `${time} - ${dayOfWeek}-${formattedDate}`;
+    const finalFormattedDate = `${time} - ${formattedDate}`;
 
     return finalFormattedDate;
 }
