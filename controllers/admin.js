@@ -72,7 +72,7 @@ export const handleDeleteUser = catchAsyncErrors(async (req, res, next) => {
 });
 
 export const handleUpdatePasswordUser = catchAsyncErrors(async (req, res, next) => {
-    const user = await User.findById(req.user.id).select('+password');
+    const user = await User.findById(req.params.id).select('+password');
 
     if (!user) {
         return next(new ErrorHandler('Không tìm thấy người dùng', 404));

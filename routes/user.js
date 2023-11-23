@@ -6,7 +6,7 @@ import {
 const router = express.Router();
 
 
-router.route('/:id')
+router.route('/')
     .patch(handleUpdatePassword)
 
 
