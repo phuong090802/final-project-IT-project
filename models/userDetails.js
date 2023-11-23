@@ -2,11 +2,6 @@ import mongoose from 'mongoose';
 import validator from 'validator';
 
 const userDetailsSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: [true, 'Vui lòng nhập tên'],
-        maxLength: [25, 'Tên không được vượt quá 25 ký tự']
-    },
     phone: {
         type: String,
         required: [true, 'Vui lòng nhập số điện thoại'],

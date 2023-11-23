@@ -6,10 +6,20 @@ class UserAPIFeatures {
 
     search() {
         const value = this.queryStr.value ? {
-            username: {
-                $regex: this.queryStr.value,
-                $options: 'i'
-            }
+            $or: [
+                {
+                    name: {
+                        $regex: this.queryStr.value,
+                        $options: 'i'
+                    }
+                },
+                {
+                    username: {
+                        $regex: this.queryStr.value,
+                        $options: 'i'
+                    }
+                }
+            ]
         } : {}
 
         this.query = this.query.find({ ...value });

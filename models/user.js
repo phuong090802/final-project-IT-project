@@ -3,6 +3,11 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 const userSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: [true, 'Vui lòng nhập tên'],
+        maxLength: [25, 'Tên không được vượt quá 25 ký tự']
+    },
     username: {
         type: String,
         required: [true, 'Vui lòng nhập tên đăng nhập'],

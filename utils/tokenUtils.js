@@ -13,6 +13,7 @@ export const sendToken = (user, refreshToken, res) => {
     }
     const userData = {
         _id: user.id,
+        name: user.name,
         username: user.username,
         role: user.role,
     };

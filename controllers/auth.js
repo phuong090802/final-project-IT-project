@@ -101,6 +101,7 @@ export const handleGetCurrentUser = catchAsyncErrors(async (req, res, next) => {
     }
     const userData = {
         _id: user.id,
+        name: user.name,
         username: user.username,
         role: user.role,
     };

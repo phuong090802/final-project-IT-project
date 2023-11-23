@@ -1,13 +1,14 @@
-import User from '../models/user.js';
-import catchAsyncErrors from '../middlewares/catchAsyncErrors.js';
-import { UserAPIFeatures } from '../utils/APIFeatures.js';
 import { format, parseISO } from 'date-fns';
 import vi from 'date-fns/locale/vi/index.js';
+import catchAsyncErrors from '../middlewares/catchAsyncErrors.js';
+import User from '../models/user.js';
+import { UserAPIFeatures } from '../utils/APIFeatures.js';
 
 export const handleCreateUser = catchAsyncErrors(async (req, res, next) => {
-    const { username, password } = req.body;
+    const { name, username, password } = req.body;
 
     await User.create({
+        name,
         username,
         password,
     });
@@ -43,7 +44,7 @@ export const handleGetAllUser = catchAsyncErrors(async (req, res, next) => {
         const createdAt = formatVietnameseDate(createdAtDate, 'HH:mm - EEEE-dd-MM-yyyy');
         const updatedAt = formatVietnameseDate(updatedAtDate, 'HH:mm - EEEE-dd-MM-yyyy');
 
-        return { _id: user._id, username: user.username, role: user.role, status: user.status, createdAt, updatedAt };
+        return { _id: user._id, name: user.name, username: user.username, role: user.role, status: user.status, createdAt, updatedAt };
     })
 
     res.json({
