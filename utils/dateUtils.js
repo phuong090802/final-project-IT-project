@@ -4,7 +4,7 @@ import vi from 'date-fns/locale/vi/index.js';
 export default function formatVietnameseDate(date) {
     const parsedDate = parseISO(date);
 
-    const dayOfWeek = format(parsedDate, 'EEEE', { locale: vi });
+    const dayOfWeek = format(parsedDate, 'EEEE');
 
     const time = format(parsedDate, 'HH:mm');
 
