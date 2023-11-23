@@ -196,7 +196,7 @@ export const handleGetAllUser = catchAsyncErrors(async (req, res, next) => {
 });
 
 export const handleGetTopic = catchAsyncErrors(async (req, res, next) => {
-    const topic = await Topic.findById(req.params.id);
+    const topic = await Topic.findOne({ id: req.params.id, user: req.user.id });
     if (!topic) {
         return next(new ErrorHandler('Không tìm thấy đề tài', 404));
     }
