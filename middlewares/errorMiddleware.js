@@ -18,6 +18,9 @@ export default function errorMiddleware(err, req, res, next) {
         if (Object.keys(err.keyValue).includes('username')) {
             field = 'Tên đăng nhập';
         }
+        if (Object.keys(err.keyValue).includes('name')) {
+            field = 'Tên đề tài';
+        }
         const message = `${field} đã tồn tại`;
         error = new ErrorHandler(message, 409);
     }

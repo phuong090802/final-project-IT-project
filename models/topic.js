@@ -26,7 +26,7 @@ const topicSchema = new mongoose.Schema({
     instructor: {
         type: mongoose.Schema.Types.ObjectId,
         required: [true, 'Thiếu thông tin người hướng dẫn'],
-        ref: 'UserDetails'
+        ref: 'User'
     }
 }, { timestamps: true });
 
