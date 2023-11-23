@@ -3,10 +3,14 @@ import { format, parseISO } from 'date-fns';
 export default function formatVietnameseDate(date) {
     const parsedDate = parseISO(date);
 
-    const time = format(parsedDate, 'HH:mm');
+    const vnTime = utcToZonedTime(parsedDate, 'Asia/Ho_Chi_Minh');
 
-    const formattedDate = format(parsedDate, "'ngày' dd-MM-yyyy");
 
+    const time = format(vnTime, 'HH:mm', { timeZone: 'Asia/Ho_Chi_Minh' });
+
+
+    const formattedDate = format(vnTime, "'ngày' dd-MM-yyyy", { timeZone: 'Asia/Ho_Chi_Minh' });
+    
     const finalFormattedDate = `${time} - ${formattedDate}`;
 
     return finalFormattedDate;
