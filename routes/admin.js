@@ -4,12 +4,13 @@ import {
     handleGetAllUser,
     handleDeleteUser,
 } from '../controllers/admin.js';
+import { isNotIdAdmin } from '../middlewares/auth.js';
 
 const router = express.Router();
 
 
 router.route('/users/:id')
-    .delete(handleDeleteUser)
+    .delete(isNotIdAdmin, handleDeleteUser)
 
 router.route('/users')
     .post(handleCreateUser)
