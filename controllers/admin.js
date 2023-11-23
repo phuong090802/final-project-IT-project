@@ -2,6 +2,9 @@ import { format, parseISO } from 'date-fns';
 import vi from 'date-fns/locale/vi/index.js';
 import catchAsyncErrors from '../middlewares/catchAsyncErrors.js';
 import User from '../models/user.js';
+import UserDetails from '../models/userDetails.js';
+import Topic from '../models/topic.js';
+import RefreshToken from '../models/refreshToken.js';
 import { UserAPIFeatures } from '../utils/APIFeatures.js';
 
 export const handleCreateUser = catchAsyncErrors(async (req, res, next) => {
@@ -51,6 +54,21 @@ export const handleGetAllUser = catchAsyncErrors(async (req, res, next) => {
         size: Number(size),
         totals
     })
+});
+
+export const handleDeleteUser = catchAsyncErrors(async (req, res, next) => {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+        return next(new ErrorHandler('Không tìm thấy người dùng', 404));
+    }
+    await RefreshToken.deleteMany({ user });
+    await UserDetails.deleteOne({ user });
+    await Topic.deleteMany({ user });
+    await user.deleteOne();
+    res.json({
+        success: true,
+        message: 'Xóa người dùng thành công'
+    });
 });
 
 
