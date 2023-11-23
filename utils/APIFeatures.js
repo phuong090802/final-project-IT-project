@@ -26,15 +26,6 @@ class UserAPIFeatures {
         return this;
     }
 
-    filter() {
-        const { status } = this.queryStr;
-        if (status) {
-            this.query = this.query.find({ status });
-        }
-        return this;
-    }
-
-
     pagination(size) {
         const currentPage = Number(this.queryStr.page) || 1;
         const skip = size * (currentPage - 1);

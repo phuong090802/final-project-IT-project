@@ -43,8 +43,8 @@ const userDetailsSchema = new mongoose.Schema({
         ref: 'User'
     }
 
-}, { timestamps: true }
+}, { collection: 'user-details', timestamps: true }
 );
 
-const UserDetails = mongoose.model('userDetails', userDetailsSchema);
+const UserDetails = mongoose.model('UserDetails', userDetailsSchema);
 export default UserDetails;

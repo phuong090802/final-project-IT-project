@@ -30,10 +30,6 @@ const userSchema = new mongoose.Schema({
             message: 'Quyền truy cập không hợp lệ',
         },
         default: 'user'
-    },
-    status: {
-        type: Boolean,
-        default: true
     }
 }, { timestamps: true });
 
