@@ -24,15 +24,13 @@ export const handleGetAllUser = catchAsyncErrors(async (req, res, next) => {
     const userQuery = User.find({ _id: { $ne: req.user._id } });
 
     const apiFeatures = new UserAPIFeatures(userQuery, req.query)
-        .search()
-        .filter();
+        .search();
 
     let Alluser = await apiFeatures.query;
     const totals = Alluser.length;
 
     const apiFeaturesPagination = new UserAPIFeatures(User.find(userQuery), req.query)
         .search()
-        .filter()
         .pagination(size);
 
     Alluser = await apiFeaturesPagination.query;
@@ -50,7 +48,7 @@ export const handleGetAllUser = catchAsyncErrors(async (req, res, next) => {
     res.json({
         success: true,
         users,
-        size,
+        size: Number(size),
         totals
     })
 });
