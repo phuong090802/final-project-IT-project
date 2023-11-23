@@ -6,8 +6,10 @@ import {
     handleGetAllUser,
     handleGetUser,
     handleUpdatePassword,
-    handleUpdateTopic,
-    handleGetTopic
+    handleUpdateUser,
+    handleGetTopic,
+    handleGetCurrentUser,
+    handleUpdateTopic
 } from '../controllers/user.js';
 
 import {
@@ -16,6 +18,9 @@ import {
 } from '../middlewares/auth.js';
 
 const router = express.Router();
+
+router.route('/me')
+    .get(isAuthenticatedUser, authorizeRoles('user'), handleGetCurrentUser)
 
 router.route('/:id')
     .get(handleGetUser)
@@ -29,8 +34,12 @@ router.route('/topics')
     .get(isAuthenticatedUser, authorizeRoles('user'), handleGetAllTopicOfCurrentUser)
     .post(isAuthenticatedUser, authorizeRoles('user'), handleCreateTopic)
 
+
+
+
 router.route('/')
     .get(handleGetAllUser)
+    .put(isAuthenticatedUser, authorizeRoles('user'), handleUpdateUser)
     .patch(isAuthenticatedUser, authorizeRoles('admin', 'user'), handleUpdatePassword)
 
 

@@ -1,13 +1,13 @@
-import User from '../models/user.js';
-import UserDetails from '../models/userDetails.js';
 import catchAsyncErrors from '../middlewares/catchAsyncErrors.js';
-import ErrorHandler from '../utils/errorHandler.js';
 import RefreshToken from '../models/refreshToken.js';
 import Topic from '../models/topic.js';
+import User from '../models/user.js';
+import UserDetails from '../models/userDetails.js';
 import {
     TopicAPIFeatures,
     UserAPIFeatures
 } from '../utils/APIFeatures.js';
+import ErrorHandler from '../utils/errorHandler.js';
 
 import handleFormatVietnameseDateTopic from '../utils/dateUtils.js';
 
@@ -100,8 +100,6 @@ export const handleGetAllTopicOfCurrentUser = catchAsyncErrors(async (req, res, 
         .pagination(size);
 
     allTopics = await apiFeaturesPagination.query;
-    const format = 'HH:mm - EEEE-dd-MM-yyyy';
-
 
     const topics = allTopics.map(topic => {
 
@@ -140,13 +138,11 @@ export const handleGetUser = catchAsyncErrors(async (req, res, next) => {
 
     const userDetails = await UserDetails.findOne({ user });
 
-    if (userDetails) {
-        userData.phone = userDetails.phone;
-        userData.email = userDetails.email;
-        userData.image = userDetails.image.url;
-        userData.degree = userDetails.degree;
+    userData.phone = userDetails?.phone || null;
+    userData.email = userDetails?.email || null;
+    userData.image = userDetails?.image?.url || null;
+    userData.degree = userDetails?.degree || null;
 
-    };
 
     res.json({
         success: true,
@@ -176,13 +172,11 @@ export const handleGetAllUser = catchAsyncErrors(async (req, res, next) => {
             _id: user.id,
             name: user.name
         }
-        if (userDetails) {
-            userData.phone = userDetails.phone;
-            userData.email = userDetails.email;
-            userData.image = userDetails.image.url;
-            userData.degree = userDetails.degree;
+        userData.phone = userDetails?.phone || null;
+        userData.email = userDetails?.email || null;
+        userData.image = userDetails?.image?.url || null;
+        userData.degree = userDetails?.degree || null;
 
-        };
         return userData;
     }));
 
@@ -219,3 +213,57 @@ export const handleGetTopic = catchAsyncErrors(async (req, res, next) => {
     });
 });
 
+export const handleGetCurrentUser = catchAsyncErrors(async (req, res, next) => {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+        return next(new ErrorHandler('Không tìm thấy người dùng', 404));
+    }
+
+    const userDetails = await UserDetails.findOne({ user });
+
+    const userData = {
+        _id: user.id,
+        phone: userDetails?.phone || null,
+        email: userDetails?.email || null,
+        image: userDetails?.image?.url || null,
+        degree: userDetails?.degree || null,
+    }
+
+    res.json({
+        success: true,
+        user: userData,
+    })
+});
+
+export const handleUpdateUser = catchAsyncErrors(async (req, res, next) => {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+        return next(new ErrorHandler('Không tìm người dùng', 404));
+    }
+
+    const { phone, email, image, degree } = req.body;
+
+    const userDetails = await UserDetails.findOne({ user });
+
+    if (userDetails) {
+        userDetails.phone = phone;
+        userDetails.email = email;
+        userDetails.image = image;
+        userDetails.degree = degree;
+        await userDetails.save();
+    }
+    else {
+        await UserDetails.create({
+            phone,
+            email,
+            image,
+            degree,
+            user
+        });
+    }
+
+    res.json({
+        success: true,
+        message: 'Cập nhật thông tin thành công'
+    });
+});
