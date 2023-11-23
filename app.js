@@ -27,7 +27,7 @@ app.use(cookieParser());
 
 app.use('/api/v1/admin', isAuthenticatedUser, authorizeRoles('admin'), admin);
 // app.use('/api/v1/admin', admin);
-app.use('/api/v1/users', isAuthenticatedUser, authorizeRoles('admin', 'user'), user);
+app.use('/api/v1/users', isAuthenticatedUser, user);
 app.use('/api/v1/auth', auth);
 
 export default app;

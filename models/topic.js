@@ -9,19 +9,9 @@ const topicSchema = new mongoose.Schema({
     description: {
         type: String
     },
-    quantity: {
-        type: Number,
-        required: [true, 'Số lượng sinh viên hướng dẫn không thể bỏ trống'],
-    },
     beginAt: {
         type: Date,
         required: [true, 'Ngày bắt đầu không thể bỏ trống'],
-        validate: {
-            validator: function (value) {
-                return this.endAt > value;
-            },
-            message: 'Ngày kết thúc phải trước ngày kết thúc'
-        }
     },
     endAt: {
         type: Date,

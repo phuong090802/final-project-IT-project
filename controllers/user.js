@@ -2,6 +2,7 @@ import User from '../models/user.js';
 import catchAsyncErrors from '../middlewares/catchAsyncErrors.js';
 import ErrorHandler from '../utils/errorHandler.js';
 import RefreshToken from '../models/refreshToken.js';
+import Topic from '../models/topic.js';
 
 export const handleUpdatePassword = catchAsyncErrors(async (req, res, next) => {
     const user = await User.findById(req.user.id).select('+password');
@@ -25,3 +26,19 @@ export const handleUpdatePassword = catchAsyncErrors(async (req, res, next) => {
     });
 });
 
+export const handleCreateTopic = catchAsyncErrors(async (req, res, next) => {
+    const { name, description, beginAt, endAt } = req.body;
+    const user = await User.findById(req.user.id);
+    await Topic.create({
+        name,
+        description,
+        beginAt,
+        endAt,
+        instructor: user
+    });
+
+    res.status(201).json({
+        success: true,
+        message: 'Tạo tài đề tài thành công'
+    });
+});
