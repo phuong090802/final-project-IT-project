@@ -35,18 +35,19 @@ class UserAPIFeatures {
     }
 
     sort() {
-        if (this.queryStr.sort) {
-            if (this.queryStr.sort.includes(',')) {
-                const [field, order] = this.queryStr.sort.split(',');
-                if (field && order) {
-                    this.query = this.query.sort({ [field]: order === 'desc' ? -1 : 1 });
+        const sortStr = this.queryStr.sort;
+        if (sortStr) {
+            if (sortStr.includes(',')) {
+                const sortQuery = extractSortQuery(sortStr);
+                if (sortStr) {
+                    this.query = this.query.sort(sortQuery);
                 }
             }
             else {
                 this.queryStr.sort.forEach(sortField => {
-                    const [field, order] = sortField.split(',');
-                    if (field && order) {
-                        this.query = this.query.sort({ [field]: order === 'desc' ? -1 : 1 });
+                    const sortQuery = extractSortQuery(sortField);
+                    if (sortQuery) {
+                        this.query = this.query.sort(sortQuery);
                     }
                 });
             }
@@ -56,6 +57,14 @@ class UserAPIFeatures {
         return this;
     }
 
+}
+
+function extractSortQuery(sortField) {
+    const [field, order] = sortField.split(',');
+    if (field && order) {
+        return { [field]: order === 'desc' ? -1 : 1 };
+    }
+    return null;
 }
 
 class TopicAPIFeatures {
