@@ -5,24 +5,24 @@ class UserAPIFeatures {
     }
 
     search() {
-        const value = this.queryStr.value ? {
+        const search = this.queryStr.search ? {
             $or: [
                 {
                     name: {
-                        $regex: this.queryStr.value,
+                        $regex: this.queryStr.search,
                         $options: 'i'
                     }
                 },
                 {
                     username: {
-                        $regex: this.queryStr.value,
+                        $regex: this.queryStr.search,
                         $options: 'i'
                     }
                 }
             ]
         } : {}
 
-        this.query = this.query.find({ ...value });
+        this.query = this.query.find({ ...search });
         return this;
     }
 
