@@ -34,6 +34,28 @@ class UserAPIFeatures {
         return this;
     }
 
+    sort() {
+        if (this.queryStr.sort) {
+            if (this.queryStr.sort.includes(',')) {
+                const [field, order] = this.queryStr.sort.split(',');
+                if (field && order) {
+                    this.query = this.query.sort({ [field]: order === 'desc' ? -1 : 1 });
+                }
+            }
+            else {
+                this.queryStr.sort.forEach(sortField => {
+                    const [field, order] = sortField.split(',');
+                    if (field && order) {
+                        this.query = this.query.sort({ [field]: order === 'desc' ? -1 : 1 });
+                    }
+                });
+            }
+        } else {
+            this.query = this.query.sort('name');
+        }
+        return this;
+    }
+
 }
 
 class TopicAPIFeatures {

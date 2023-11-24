@@ -39,7 +39,7 @@ router.route('/topics')
 
 router.route('/')
     .get(handleGetAllUser)
-    .put(isAuthenticatedUser, authorizeRoles('user'), handleUpdateUser)
+    .post(isAuthenticatedUser, authorizeRoles('user'), handleUpdateUser)
     .patch(isAuthenticatedUser, authorizeRoles('admin', 'user'), handleUpdatePassword)
 
 

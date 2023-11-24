@@ -26,14 +26,15 @@ export const handleGetAllUser = catchAsyncErrors(async (req, res, next) => {
     const userQuery = User.find({ _id: { $ne: req.user._id } });
 
     const apiFeatures = new UserAPIFeatures(userQuery, req.query)
-        .search();
+        .search()
 
     let allUser = await apiFeatures.query;
     const totals = allUser.length;
 
     const apiFeaturesPagination = new UserAPIFeatures(User.find(userQuery), req.query)
         .search()
-        .pagination(size);
+        .pagination(size)
+        .sort();
 
     allUser = await apiFeaturesPagination.query;
     const format = 'HH:mm - EEEE-dd-MM-yyyy';
