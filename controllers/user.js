@@ -9,7 +9,7 @@ import {
 } from '../utils/APIFeatures.js';
 import ErrorHandler from '../utils/errorHandler.js';
 
-import handleFormatVietnameseDateTopic from '../utils/dateUtils.js';
+import handleFormatVietnameseDateTopic from '../utils/topicUtils.js';
 
 
 export const handleUpdatePassword = catchAsyncErrors(async (req, res, next) => {
