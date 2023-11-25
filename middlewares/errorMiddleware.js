@@ -3,7 +3,7 @@ import ErrorHandler from '../utils/errorHandler.js';
 export default function errorMiddleware(err, req, res, next) {
     err.status = err.status || 500;
     err.message = err.message || 'Internal Server Error';
-    console.log(err);
+    // console.log(err);
     let error = { ...err };
     error.message = err.message;
 
