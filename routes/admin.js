@@ -18,7 +18,6 @@ router.route('/users/:username')
     .patch(isNotIdAdmin, handleUpdatePasswordUserByUserName)
 
 
-
 router.route('/users')
     .post(handleCreateUser)
     .get(handleGetAllUser)

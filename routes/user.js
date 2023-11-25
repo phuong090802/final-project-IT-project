@@ -22,19 +22,17 @@ const router = express.Router();
 router.route('/me')
     .get(isAuthenticatedUser, authorizeRoles('user'), handleGetCurrentUser)
 
-router.route('/:id')
-    .get(handleGetUser)
+router.route('/topics')
+    .get(isAuthenticatedUser, authorizeRoles('user'), handleGetAllTopicOfCurrentUser)
+    .post(isAuthenticatedUser, authorizeRoles('user'), handleCreateTopic)
 
 router.route('/topics/:id')
     .get(isAuthenticatedUser, authorizeRoles('user'), handleGetTopic)
     .put(isAuthenticatedUser, authorizeRoles('user'), handleUpdateTopic)
     .delete(isAuthenticatedUser, authorizeRoles('user'), handleDeleteToplic)
 
-router.route('/topics')
-    .get(isAuthenticatedUser, authorizeRoles('user'), handleGetAllTopicOfCurrentUser)
-    .post(isAuthenticatedUser, authorizeRoles('user'), handleCreateTopic)
-
-
+router.route('/:id')
+    .get(handleGetUser)
 
 
 router.route('/')

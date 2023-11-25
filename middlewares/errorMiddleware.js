@@ -4,7 +4,6 @@ export default function errorMiddleware(err, req, res, next) {
     err.status = err.status || 500;
     err.message = err.message || 'Internal Server Error';
 
-
     let error = { ...err };
     error.message = err.message;
 
