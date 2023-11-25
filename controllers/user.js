@@ -110,7 +110,6 @@ export const handleGetAllTopicOfCurrentUser = catchAsyncErrors(async (req, res, 
             name: topic.name,
             description: topic.description,
             ...dateFormatted,
-            instructor: topic.instructor,
         };
     })
 
