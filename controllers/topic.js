@@ -2,6 +2,7 @@ import catchAsyncErrors from '../middlewares/catchAsyncErrors.js';
 import Topic from '../models/topic.js';
 import { TopicAPIFeatures } from '../utils/APIFeatures.js';
 import handleFormatVietnameseDateTopic from '../utils/topicUtils.js';
+import ErrorHandler from '../utils/errorHandler.js';
 
 export const handleGetAllTopic = catchAsyncErrors(async (req, res, next) => {
     const { size } = req.query;

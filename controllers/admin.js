@@ -5,6 +5,7 @@ import Topic from '../models/topic.js';
 import RefreshToken from '../models/refreshToken.js';
 import { UserAPIFeatures } from '../utils/APIFeatures.js';
 import formatVietnameseDate from '../utils/dateUtils.js';
+import ErrorHandler from '../utils/errorHandler.js';
 
 export const handleCreateUser = catchAsyncErrors(async (req, res, next) => {
     const { name, username, password } = req.body;
@@ -82,8 +83,26 @@ export const handleDeleteUser = catchAsyncErrors(async (req, res, next) => {
     });
 });
 
-export const handleUpdatePasswordUser = catchAsyncErrors(async (req, res, next) => {
+export const handleUpdatePasswordUserById = catchAsyncErrors(async (req, res, next) => {
     const user = await User.findById(req.params.id).select('+password');
+
+    if (!user) {
+        return next(new ErrorHandler('Không tìm thấy người dùng', 404));
+    }
+
+    user.password = req.body.password;
+
+    await user.save();
+    await RefreshToken.deleteMany({ user });
+
+    res.json({
+        success: true,
+        message: 'Cập nhật mật khẩu người dùng thành công'
+    });
+});
+
+export const handleUpdatePasswordUserByUserName = catchAsyncErrors(async (req, res, next) => {
+    const user = await User.findOne({ username: req.params.username }).select('+password');
 
     if (!user) {
         return next(new ErrorHandler('Không tìm thấy người dùng', 404));
