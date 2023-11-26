@@ -76,7 +76,10 @@ export const handleDeleteToplic = catchAsyncErrors(async (req, res, next) => {
     if (!topic) {
         return next(new ErrorHandler('Không tìm thấy đề tài', 404));
     }
-
+    const user = await User.findById(req.user.id);
+    if (!topic.instructor.equals(user._id)) {
+        return next(new ErrorHandler('Thao tác không hợp lệ', 403));
+    }
     await topic.deleteOne();
     res.json({
         success: true,
