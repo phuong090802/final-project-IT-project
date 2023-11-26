@@ -20,6 +20,12 @@ export default function errorMiddleware(err, req, res, next) {
         if (Object.keys(err.keyValue).includes('name')) {
             field = 'Tên đề tài';
         }
+        if (Object.keys(err.keyValue).includes('email')) {
+            field = 'Email';
+        }
+        if (Object.keys(err.keyValue).includes('phone')) {
+            field = 'Số điện thoại';
+        }
         const message = `${field} đã tồn tại`;
         error = new ErrorHandler(message, 409);
     }
