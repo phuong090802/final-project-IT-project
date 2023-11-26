@@ -29,7 +29,7 @@ export const handleGetAllTopic = catchAsyncErrors(async (req, res, next) => {
         instructor: topic.instructor,
         createdAt: topic.createdAt,
         updatedAt: topic.updatedAt,
-       
+
     }))
 
     res.json({
@@ -61,4 +61,42 @@ export const handleGetTopic = catchAsyncErrors(async (req, res, next) => {
         success: true,
         topic: topicData
     });
+});
+
+
+export const handleGetAllTopicByUserId = catchAsyncErrors(async (req, res, next) => {
+    const { size } = req.query;
+    const topicQuery = Topic.find({ instructor: req.params.id });
+
+    const apiFeatures = new TopicAPIFeatures(topicQuery, req.query)
+        .search();
+
+    let allTopics = await apiFeatures.query;
+    const totals = allTopics.length;
+
+    const apiFeaturesPagination = new TopicAPIFeatures(Topic.find(topicQuery), req.query)
+        .search()
+        .pagination(size);
+
+    allTopics = await apiFeaturesPagination.query;
+
+
+    const topics = allTopics.map(topic => ({
+        _id: topic._id,
+        name: topic.name,
+        description: topic.description,
+        beginAt: topic.beginAt,
+        endAt: topic.endAt,
+        instructor: topic.instructor,
+        createdAt: topic.createdAt,
+        updatedAt: topic.updatedAt,
+
+    }))
+
+    res.json({
+        success: true,
+        topics,
+        size: Number(size),
+        totals
+    })
 });
