@@ -1,7 +1,6 @@
 import catchAsyncErrors from '../middlewares/catchAsyncErrors.js';
 import Topic from '../models/topic.js';
 import { TopicAPIFeatures } from '../utils/APIFeatures.js';
-import handleFormatVietnameseDateTopic from '../utils/topicUtils.js';
 import ErrorHandler from '../utils/errorHandler.js';
 
 export const handleGetAllTopic = catchAsyncErrors(async (req, res, next) => {
@@ -21,18 +20,17 @@ export const handleGetAllTopic = catchAsyncErrors(async (req, res, next) => {
     allTopics = await apiFeaturesPagination.query;
 
 
-    const topics = allTopics.map(topic => {
-
-        const dateFormatted = handleFormatVietnameseDateTopic(topic);
-
-        return {
-            _id: topic._id,
-            name: topic.name,
-            description: topic.description,
-            ...dateFormatted,
-            instructor: topic.instructor,
-        };
-    })
+    const topics = allTopics.map(topic => ({
+        _id: topic._id,
+        name: topic.name,
+        description: topic.description,
+        beginAt: topic.beginAt,
+        endAt: topic.endAt,
+        instructor: topic.instructor,
+        createdAt: topic.createdAt,
+        updatedAt: topic.updatedAt,
+       
+    }))
 
     res.json({
         success: true,
@@ -47,16 +45,17 @@ export const handleGetTopic = catchAsyncErrors(async (req, res, next) => {
     if (!topic) {
         return next(new ErrorHandler('Không tìm thấy đề tài', 404));
     }
-    const dateFormatted = handleFormatVietnameseDateTopic(topic);
 
     const topicData = {
         _id: topic._id,
         name: topic.name,
         description: topic.description,
-        ...dateFormatted,
-        instructor: topic.instructor
+        beginAt: topic.beginAt,
+        endAt: topic.endAt,
+        instructor: topic.instructor,
+        createdAt: topic.createdAt,
+        updatedAt: topic.updatedAt,
     }
-
 
     res.json({
         success: true,

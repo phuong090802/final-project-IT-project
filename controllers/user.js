@@ -9,7 +9,6 @@ import {
 } from '../utils/APIFeatures.js';
 import ErrorHandler from '../utils/errorHandler.js';
 
-import handleFormatVietnameseDateTopic from '../utils/topicUtils.js';
 
 
 export const handleUpdatePassword = catchAsyncErrors(async (req, res, next) => {
@@ -92,26 +91,24 @@ export const handleGetAllTopicOfCurrentUser = catchAsyncErrors(async (req, res, 
     const apiFeatures = new TopicAPIFeatures(topicQuery, req.query)
         .search();
 
-    let allTopics = await apiFeatures.query;
-    const totals = allTopics.length;
+    let listTopics = await apiFeatures.query;
+    const totals = listTopics.length;
 
     const apiFeaturesPagination = new TopicAPIFeatures(Topic.find(topicQuery), req.query)
         .search()
         .pagination(size);
 
-    allTopics = await apiFeaturesPagination.query;
+    listTopics = await apiFeaturesPagination.query;
 
-    const topics = allTopics.map(topic => {
-
-        const dateFormatted = handleFormatVietnameseDateTopic(topic);
-
-        return {
-            _id: topic._id,
-            name: topic.name,
-            description: topic.description,
-            ...dateFormatted,
-        };
-    })
+    const topics = listTopics.map(topic => ({
+        _id: topic._id,
+        name: topic.name,
+        description: topic.description,
+        beginAt: topic.beginAt,
+        endAt: topic.endAt,
+        createdAt: topic.createdAt,
+        updatedAt: topic.updatedAt,
+    }));
 
     res.json({
         success: true,
@@ -189,20 +186,20 @@ export const handleGetAllUser = catchAsyncErrors(async (req, res, next) => {
 });
 
 export const handleGetTopic = catchAsyncErrors(async (req, res, next) => {
-    const topic = await Topic.findOne({ id: req.params.id, user: req.user.id });
+    const topic = await Topic.findOne({ _id: req.params.id, instructor: req.user.id });
     if (!topic) {
         return next(new ErrorHandler('Không tìm thấy đề tài', 404));
     }
-
-    const dateFormatted = handleFormatVietnameseDateTopic(topic);
 
 
     const topicData = {
         _id: topic._id,
         name: topic.name,
         description: topic.description,
-        ...dateFormatted,
-        instructor: req.user.id
+        beginAt: topic.beginAt,
+        endAt: topic.endAt,
+        createdAt: topic.createdAt,
+        updatedAt: topic.updatedAt,
     }
 
 

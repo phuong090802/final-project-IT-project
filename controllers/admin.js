@@ -4,7 +4,6 @@ import UserDetails from '../models/userDetails.js';
 import Topic from '../models/topic.js';
 import RefreshToken from '../models/refreshToken.js';
 import { UserAPIFeatures } from '../utils/APIFeatures.js';
-import formatVietnameseDate from '../utils/dateUtils.js';
 import ErrorHandler from '../utils/errorHandler.js';
 
 export const handleCreateUser = catchAsyncErrors(async (req, res, next) => {
@@ -38,16 +37,8 @@ export const handleGetAllUser = catchAsyncErrors(async (req, res, next) => {
         .sort();
 
     allUser = await apiFeaturesPagination.query;
-    const format = 'HH:mm - EEEE-dd-MM-yyyy';
-
 
     const users = allUser.map(user => {
-        const createdAtDate = user.createdAt.toJSON();
-        const updatedAtDate = user.updatedAt.toJSON();
-
-
-        const createdAt = formatVietnameseDate(createdAtDate, format);
-        const updatedAt = formatVietnameseDate(updatedAtDate, format);
 
         return {
             _id: user._id,
@@ -55,8 +46,8 @@ export const handleGetAllUser = catchAsyncErrors(async (req, res, next) => {
             username: user.username,
             role: user.role,
             status: user.status,
-            createdAt,
-            updatedAt
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
         };
     })
 
