@@ -66,7 +66,7 @@ export const handleDeleteUser = catchAsyncErrors(async (req, res, next) => {
     }
     await RefreshToken.deleteMany({ user });
     await UserDetails.deleteOne({ user });
-    await Topic.deleteMany({ user });
+    await Topic.deleteMany({ instructor: user });
     await user.deleteOne();
     res.json({
         success: true,
