@@ -15,11 +15,11 @@ const upload = multer({ memoryStorage });
 export const handleUpload = catchAsyncErrors(async (req, res, next) => {
 
     if (!req.file) {
-        return next(new ErrorHandler('Không tìm thấy file', 400));
+        return next(new ErrorHandler(400, 'Không tìm thấy file', 'Không tìm thấy file được upload', 10037));
     }
 
     if (!validatorFormat(req.file)) {
-        return next(new ErrorHandler('Định dạng file không hợp lệ', 400));
+        return next(new ErrorHandler(400, 'Định dạng file không hợp lệ', 'Định dạng file phải là .jpg hoặc .jpeg hoặc .png', 10038));
     }
 
     const extension = path.extname(req.file.originalname);
@@ -33,9 +33,9 @@ export const handleUpload = catchAsyncErrors(async (req, res, next) => {
             success: true,
             image: { ref: dataRef, url: url }
         });
-    } catch(err) {
+    } catch (err) {
         console.log(err);
-        return next(new ErrorHandler('Lỗi upload file', 500));
+        return next(new ErrorHandler(400, 'Lỗi upload file', err, 10039));
     }
 
 })
