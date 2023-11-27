@@ -14,18 +14,33 @@ export const handleLogin = catchAsyncErrors(async (req, res, next) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
-        return next(new ErrorHandler('Vui lòng nhập tên đăng nhập và mật khẩu', 400));
+        return next(new ErrorHandler(
+            400,
+            'Vui lòng nhập tên đăng nhập và mật khẩu',
+            `Đăng nhập thất bại. ${!username && !password ? 'username và password'
+                :
+                !user ? 'username'
+                    : !password ? 'password' : ''} rỗng hoặc null hoặc undefined`,
+            10004));
     }
 
     const user = await User.findOne({ username }).select('+password');
 
     if (!user) {
-        return next(new ErrorHandler('Tên đăng nhập hoặc mật khẩu không hợp lệ', 401));
+        return next(new ErrorHandler(
+            401,
+            'Tên đăng nhập hoặc mật khẩu không hợp lệ',
+            'Đăng nhập thất bại. Không tìm thấy người dùng',
+            10005));
     }
 
     const isPasswordMatched = await user.comparePassword(password);
     if (!isPasswordMatched) {
-        return next(new ErrorHandler('Tên đăng nhập hoặc mật khẩu không hợp lệ', 401));
+        return next(new ErrorHandler(
+            401,
+            'Tên đăng nhập hoặc mật khẩu không hợp lệ',
+            'Đăng nhập thất bại. Không tìm thấy người dùng',
+            10006));
     }
     const token = await getRefreshToken(user);
 
@@ -55,7 +70,11 @@ export const handleRefreshToken = catchAsyncErrors(async (req, res, next) => {
 
     const token = req.cookies.refreshToken;
     if (!token) {
-        return next(new ErrorHandler('Yêu cầu không hợp lệ', 400));
+        return next(new ErrorHandler(
+            400,
+            'Yêu cầu không hợp lệ',
+            'Lỗi refresh token, token không có trong cookie',
+            10007));
     }
 
     const refreshToken = await RefreshToken.findOne({ token });
@@ -67,10 +86,18 @@ export const handleRefreshToken = catchAsyncErrors(async (req, res, next) => {
             const parentToken = await RefreshToken.findById(tokenObject.p);
             const parent = parentToken.parent || parentToken._id;
             await deleteToken(parent);
-            return next(new ErrorHandler('Yêu cầu không hợp lệ', 400));
+            return next(new ErrorHandler(
+                400,
+                'Yêu cầu không hợp lệ',
+                'Lỗi refresh token, token đã được sử dụng',
+                10008));
         } catch {
             clearToken(res);
-            return next(new ErrorHandler('Yêu cầu không hợp lệ', 400));
+            return next(new ErrorHandler(
+                400,
+                'Yêu cầu không hợp lệ',
+                'Lỗi refresh token, token không tồn tại trong hệ thống',
+                10009));
         }
     }
 
@@ -78,7 +105,11 @@ export const handleRefreshToken = catchAsyncErrors(async (req, res, next) => {
     if (!refreshToken.status) {
         await deleteToken(parent);
         clearToken(res);
-        return next(new ErrorHandler('Yêu cầu không hợp lệ', 400));
+        return next(new ErrorHandler(
+            400,
+            'Yêu cầu không hợp lệ',
+            'Lỗi refresh token, token đã được sử dụng',
+            10010));;
     }
 
     const user = await User.findById(refreshToken.user);
@@ -97,7 +128,11 @@ export const handleRefreshToken = catchAsyncErrors(async (req, res, next) => {
 export const handleGetCurrentUser = catchAsyncErrors(async (req, res, next) => {
     const user = await User.findById(req.user.id);
     if (!user) {
-        return next(new ErrorHandler('Không tìm thấy người dùng', 404));
+        return next(new ErrorHandler(
+            404,
+            'Không tìm thấy người dùng',
+            `Không tìm thấy người dùng với id: ${req.params.id}`,
+            10011));
     }
     const userData = {
         _id: user.id,

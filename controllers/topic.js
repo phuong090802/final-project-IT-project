@@ -43,7 +43,11 @@ export const handleGetAllTopic = catchAsyncErrors(async (req, res, next) => {
 export const handleGetTopic = catchAsyncErrors(async (req, res, next) => {
     const topic = await Topic.findById(req.params.id);
     if (!topic) {
-        return next(new ErrorHandler('Không tìm thấy đề tài', 404));
+        return next(new ErrorHandler(
+            404,
+            'Không tìm thấy đề tài',
+            `Không tìm thấy đề tài với id: ${req.params.id}`,
+            10012));
     }
 
     const topicData = {

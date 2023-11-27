@@ -62,7 +62,11 @@ export const handleGetAllUser = catchAsyncErrors(async (req, res, next) => {
 export const handleDeleteUser = catchAsyncErrors(async (req, res, next) => {
     const user = await User.findById(req.params.id);
     if (!user) {
-        return next(new ErrorHandler('Không tìm thấy người dùng', 404));
+        return next(new ErrorHandler(
+            404,
+            'Không tìm thấy người dùng',
+            `Không tìm thấy người dùng với id: ${req.params.id}`,
+            10001));
     }
     await RefreshToken.deleteMany({ user });
     await UserDetails.deleteOne({ user });
@@ -78,7 +82,11 @@ export const handleUpdatePasswordUserById = catchAsyncErrors(async (req, res, ne
     const user = await User.findById(req.params.id).select('+password');
 
     if (!user) {
-        return next(new ErrorHandler('Không tìm thấy người dùng', 404));
+        return next(new ErrorHandler(
+            404,
+            'Không tìm thấy người dùng',
+            `Không tìm thấy người dùng với id: ${req.params.id}`,
+            10002));
     }
 
     user.password = req.body.password;
@@ -96,7 +104,11 @@ export const handleUpdatePasswordUserByUserName = catchAsyncErrors(async (req, r
     const user = await User.findOne({ username: req.params.username }).select('+password');
 
     if (!user) {
-        return next(new ErrorHandler('Không tìm thấy người dùng', 404));
+        return next(new ErrorHandler(
+            404,
+            'Không tìm thấy người dùng',
+            `Không tìm thấy người dùng với username: ${req.params.username}`,
+            10003));
     }
 
     user.password = req.body.password;

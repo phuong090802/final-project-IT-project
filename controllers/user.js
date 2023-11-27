@@ -15,12 +15,20 @@ export const handleUpdatePassword = catchAsyncErrors(async (req, res, next) => {
     const user = await User.findById(req.user.id).select('+password');
 
     if (!user) {
-        return next(new ErrorHandler('Không tìm thấy người dùng', 404));
+        return next(new ErrorHandler(
+            404,
+            'Không tìm thấy người dùng',
+            `Không tìm thấy người dùng để cập nhật mật khẩu`,
+            10013));
     }
 
     const isPasswordMatched = await user.comparePassword(req.body.oldPassword);
     if (!isPasswordMatched) {
-        return next(new ErrorHandler('Mật khẩu cũ không chính xác', 400));
+        return next(new ErrorHandler(
+            400,
+            'Mật khẩu cũ không chính xác',
+            `Nhập sai mật khẩu cũ`,
+            10014));
     }
 
     user.password = req.body.newPassword;
@@ -53,12 +61,20 @@ export const handleCreateTopic = catchAsyncErrors(async (req, res, next) => {
 export const handleUpdateTopic = catchAsyncErrors(async (req, res, next) => {
     const topic = await Topic.findById(req.params.id);
     if (!topic) {
-        return next(new ErrorHandler('Không tìm thấy đề tài', 404));
+        return next(new ErrorHandler(
+            404,
+            'Không tìm thấy đề tài',
+            `Không tìm thấy đề tài với id: ${req.params.id}`,
+            10015));
     }
 
     const user = await User.findById(req.user.id);
     if (!topic.instructor.equals(user._id)) {
-        return next(new ErrorHandler('Thao tác không hợp lệ', 403));
+        return next(new ErrorHandler(
+            403,
+            'Thao tác không hợp lệ',
+            `Chỉnh sửa đề tài: ${req.params.id} không phải của bản thân`,
+            10016));
     }
 
     const { name, description, beginAt, endAt } = req.body;
@@ -74,11 +90,19 @@ export const handleUpdateTopic = catchAsyncErrors(async (req, res, next) => {
 export const handleDeleteToplic = catchAsyncErrors(async (req, res, next) => {
     const topic = await Topic.findById(req.params.id);
     if (!topic) {
-        return next(new ErrorHandler('Không tìm thấy đề tài', 404));
+        return next(new ErrorHandler(
+            404,
+            'Không tìm thấy đề tài',
+            `Không tìm thấy đề tài với id: ${req.params.id}`,
+            10017));
     }
     const user = await User.findById(req.user.id);
     if (!topic.instructor.equals(user._id)) {
-        return next(new ErrorHandler('Thao tác không hợp lệ', 403));
+        return next(new ErrorHandler(
+            403,
+            'Thao tác không hợp lệ',
+            `Xóa đề tài: ${req.params.id} không phải của bản thân`,
+            10018));
     }
     await topic.deleteOne();
     res.json({
@@ -127,7 +151,11 @@ export const handleGetUser = catchAsyncErrors(async (req, res, next) => {
     const user = await User.findOne({ _id: req.params.id, role: { $ne: 'admin' } });
 
     if (!user) {
-        return next(new ErrorHandler('Không tìm thấy người dùng', 404));
+        return next(new ErrorHandler(
+            404,
+            'Không tìm thấy người dùng',
+            `Không tìm thấy người dùng với id: ${req.params.id}`,
+            10019));
     }
 
     const userData = {
@@ -191,7 +219,11 @@ export const handleGetAllUser = catchAsyncErrors(async (req, res, next) => {
 export const handleGetTopic = catchAsyncErrors(async (req, res, next) => {
     const topic = await Topic.findOne({ _id: req.params.id, instructor: req.user.id });
     if (!topic) {
-        return next(new ErrorHandler('Không tìm thấy đề tài', 404));
+        return next(new ErrorHandler(
+            404,
+            'Không tìm thấy đề tài',
+            `Không tìm thấy đề tài với id: ${req.params.id}`,
+            10020));
     }
 
 
@@ -215,7 +247,11 @@ export const handleGetTopic = catchAsyncErrors(async (req, res, next) => {
 export const handleGetCurrentUser = catchAsyncErrors(async (req, res, next) => {
     const user = await User.findById(req.user.id);
     if (!user) {
-        return next(new ErrorHandler('Không tìm thấy người dùng', 404));
+        return next(new ErrorHandler(
+            404,
+            'Không tìm thấy người dùng',
+            `Không tìm thấy người dùng để xem chi tiết bản thân`,
+            10021));
     }
 
     const userDetails = await UserDetails.findOne({ user });
@@ -237,7 +273,11 @@ export const handleGetCurrentUser = catchAsyncErrors(async (req, res, next) => {
 export const handleUpdateUser = catchAsyncErrors(async (req, res, next) => {
     const user = await User.findById(req.user.id);
     if (!user) {
-        return next(new ErrorHandler('Không tìm người dùng', 404));
+        return next(new ErrorHandler(
+            404,
+            'Không tìm thấy người dùng',
+            `Không tìm thấy người dùng để cập nhật chi bản thân`,
+            10022));
     }
 
     const { phone, email, image, degree } = req.body;
