@@ -8,7 +8,8 @@ export const handleGetAllTopic = catchAsyncErrors(async (req, res, next) => {
     const topicQuery = Topic.find();
 
     const apiFeatures = new TopicAPIFeatures(topicQuery, req.query)
-        .search();
+        .search()
+        .sort();
 
     let allTopics = await apiFeatures.query;
     const totals = allTopics.length;

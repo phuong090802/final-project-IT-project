@@ -1,7 +1,7 @@
 import express from 'express';
 import {
     handleCreateTopic,
-    handleDeleteToplic,
+    handleDeleteTopic,
     handleGetAllTopicOfCurrentUser,
     handleGetAllUser,
     handleGetUser,
@@ -29,7 +29,7 @@ router.route('/topics')
 router.route('/topics/:id')
     .get(isAuthenticatedUser, authorizeRoles('user'), handleGetTopic)
     .put(isAuthenticatedUser, authorizeRoles('user'), handleUpdateTopic)
-    .delete(isAuthenticatedUser, authorizeRoles('user'), handleDeleteToplic)
+    .delete(isAuthenticatedUser, authorizeRoles('user'), handleDeleteTopic)
 
 router.route('/:id')
     .get(handleGetUser)

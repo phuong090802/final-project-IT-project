@@ -103,6 +103,29 @@ class TopicAPIFeatures {
         return this;
     }
 
+    sort() {
+        const sortStr = this.queryStr.sort;
+        if (sortStr) {
+            if (sortStr.includes(',')) {
+                const sortQuery = extractSortQuery(sortStr);
+                if (sortStr) {
+                    this.query = this.query.sort(sortQuery);
+                }
+            }
+            else {
+                this.queryStr.sort.forEach(sortField => {
+                    const sortQuery = extractSortQuery(sortField);
+                    if (sortQuery) {
+                        this.query = this.query.sort(sortQuery);
+                    }
+                });
+            }
+        } else {
+            this.query = this.query.sort('name');
+        }
+        return this;
+    }
+
 }
 
 export { UserAPIFeatures, TopicAPIFeatures };
