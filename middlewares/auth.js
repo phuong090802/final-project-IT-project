@@ -7,7 +7,7 @@ export const isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
 
     if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer')) {
         return next(new ErrorHandler(
-            403, 
+            401, 
             'Đăng nhập trước khi truy cập vào tài nguyên này', 
             'Đăng nhập trước khi truy cập vào tài nguyên được bảo vệ',
             10024));
@@ -16,7 +16,7 @@ export const isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
     const token = req.headers.authorization.split(' ')[1];
     if (!token) {
         return next(new ErrorHandler(
-            403, 
+            401, 
             'Đăng nhập trước khi truy cập vào tài nguyên này', 
             'Đăng nhập trước khi truy cập vào tài nguyên được bảo vệ',
             10025));
