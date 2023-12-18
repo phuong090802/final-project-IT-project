@@ -146,7 +146,8 @@ export const handleGetAllTopicOfCurrentUser = catchAsyncErrors(
       req.query
     )
       .search()
-      .pagination(size);
+      .pagination(size)
+      .sort();
 
     listTopics = await apiFeaturesPagination.query;
 
