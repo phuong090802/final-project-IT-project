@@ -353,7 +353,7 @@ export const handleUpdateUser = catchAsyncErrors(async (req, res, next) => {
       image,
       degree: '',
       user,
-    });
+    }, { validateBeforeSave: false });
   }
 
   res.json({
