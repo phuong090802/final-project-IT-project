@@ -348,10 +348,10 @@ export const handleUpdateUser = catchAsyncErrors(async (req, res, next) => {
     await userDetails.save();
   } else {
     await UserDetails.create({
-      phone,
-      email,
+      phone: '',
+      email: '',
       image,
-      degree,
+      degree: '',
       user,
     });
   }

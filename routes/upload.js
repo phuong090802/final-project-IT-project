@@ -24,7 +24,7 @@ export const handleUpload = catchAsyncErrors(async (req, res, next) => {
 
     const extension = path.extname(req.file.originalname);
     const filename = `${nanoid()}${extension}`;
-    const dataRef = `images/${filename}`;
+    const dataRef = `images/${filename}`;z
     try {
         const storageRef = ref(storage, dataRef);
         await uploadBytes(storageRef, new Uint8Array(req.file.buffer));
