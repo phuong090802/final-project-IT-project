@@ -1,6 +1,7 @@
 import ErrorHandler from '../utils/errorHandler.js';
 
 export default function errorMiddleware(err, req, res, next) {
+ 
     err.status = err.status || 500;
     err.detail = err.detail || 'Internal Server Error';
     err.message = err.message || 'Internal Server Error';
@@ -53,7 +54,8 @@ export default function errorMiddleware(err, req, res, next) {
         const message = Object.values(err.errors).map(value => value.message);
         error = new ErrorHandler(400, message, err.message, 10036);
     }
-
+    console.info('Inside errorMiddleware');
+    console.info(error);
     res.status(error.status).json({
         success: false,
         message: error.message || 'Lỗi Internal Server',
